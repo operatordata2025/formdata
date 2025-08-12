@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Form Pendataan Siswa Modern</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -658,6 +658,9 @@
     </div>
 
     <script>
+        // === SCRIPT_URL: hanya ubah ID di sini kalau perlu ===
+        const SCRIPT_URL = 'https://script.google.com/macros/s/1WR_zca66HymlcQZdSqYVPzLKPK4yERcJqrEPHjKAuOCwVR06483hg-OV/exec';
+
         // Initialize map
         const map = L.map('map').setView([-6.2088, 106.8456], 13);
         
@@ -793,9 +796,8 @@
             const formObject = Object.fromEntries(formData.entries());
             
             try {
-                // Send data to Google Apps Script
-                const response = await fetch(
-                    'https://script.google.com/macros/s/1WR_zca66HymlcQZdSqYVPzLKPK4yERcJqrEPHjKAuOCwVR06483hg-OV/exec', 
+                // Send data to Google Apps Script (pakai variabel SCRIPT_URL)
+                const response = await fetch(SCRIPT_URL, 
                     {
                         method: 'POST',
                         body: JSON.stringify(formObject),
