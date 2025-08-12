@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pendataan Siswa Modern</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(to right, #1a2980, #26d0ce);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            opacity: 0.3;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            animation: fadeIn 1s ease-out 0.3s;
+            animation-fill-mode: both;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        /* Form Styles */
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin: 30px 0 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #1a2980;
+            color: #1a2980;
+            position: relative;
+            grid-column: 1 / -1;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #1a2980, #26d0ce);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #444;
+            position: relative;
+            padding-left: 10px;
+        }
+
+        label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(to bottom, #1a2980, #26d0ce);
+            border-radius: 2px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ff4757;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f9fbfd;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #1a2980;
+            box-shadow: 0 0 0 4px rgba(26, 41, 128, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 25px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        /* Location Section */
+        .location-container {
+            background: linear-gradient(to right, #f0f9ff, #e6f7ff);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+            border: 2px dashed #1a2980;
+            grid-column: 1 / -1;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .location-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #1a2980;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .location-info i {
+            margin-right: 12px;
+            font-size: 24px;
+            color: #ff6b6b;
+        }
+
+        .map-container {
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 2px solid #1a2980;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 32px;
+            background: linear-gradient(to right, #1a2980, #26d0ce);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(26, 41, 128, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
+            transform: rotate(30deg);
+            transition: all 0.6s;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(26, 41, 128, 0.4);
+        }
+
+        .btn:hover::before {
+            transform: rotate(30deg) translate(20%, 20%);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn i {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .btn-detect {
+            background: linear-gradient(to right, #ff9a00, #ff6a00);
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-submit {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            margin-top: 30px;
+            width: 100%;
+            padding: 18px;
+            font-size: 20px;
+            grid-column: 1 / -1;
+        }
+
+        /* Message Styles */
+        .message-container {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .success-message {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        .message-container i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .message-container h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        /* Particles Background */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            animation: float 15s infinite linear;
+        }
+
+        /* Footer */
+        .form-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 16px;
+            padding: 20px;
+            grid-column: 1 / -1;
+            border-top: 1px solid #eee;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 25px;
+            }
+            
+            header {
+                padding: 25px 20px;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+            
+            .btn {
+                padding: 14px 25px;
+                font-size: 16px;
+            }
+            
+            .logo {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <header>
+            <div class="header-overlay"></div>
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>FORM PENDATAAN SISWA</h1>
+            <p>Lengkapi data berikut dengan sebenar-benarnya. Data akan disimpan secara aman di Google Sheets</p>
+        </header>
+        
+        <div class="form-container">
+            <form id="studentForm" class="form-grid">
+                <!-- Biodata Siswa Section -->
+                <h2 class="section-title">
+                    <i class="fas fa-user-graduate"></i> BIODATA SISWA
+                </h2>
+                
+                <div class="form-group">
+                    <label for="nama" class="required">NAMA LENGKAP</label>
+                    <input type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="panggilan">NAMA PANGGILAN</label>
+                    <input type="text" id="panggilan" name="panggilan" placeholder="Masukkan nama panggilan">
+                </div>
+                
+                <div class="form-group">
+                    <label for="alamat" class="required">ALAMAT</label>
+                    <textarea id="alamat" name="alamat" rows="2" placeholder="Masukkan alamat lengkap" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required">JENIS KELAMIN</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="laki" name="jenis_kelamin" value="Laki-laki" required>
+                            <label for="laki">Laki-laki</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="perempuan" name="jenis_kelamin" value="Perempuan">
+                            <label for="perempuan">Perempuan</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="agama" class="required">AGAMA</label>
+                    <select id="agama" name="agama" required>
+                        <option value="">Pilih Agama</option>
+                        <option value="Islam">Islam</option>
+                        <option value="Kristen">Kristen</option>
+                        <option value="Katolik">Katolik</option>
+                        <option value="Hindu">Hindu</option>
+                        <option value="Buddha">Buddha</option>
+                        <option value="Konghucu">Konghucu</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="no_hp" class="required">NO HP</label>
+                    <input type="tel" id="no_hp" name="no_hp" placeholder="Contoh: 081234567890" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="kelas" class="required">KELAS</label>
+                    <select id="kelas" name="kelas" required>
+                        <option value="">Pilih Kelas</option>
+                        <option value="7">Kelas 7</option>
+                        <option value="8">Kelas 8</option>
+                        <option value="9">Kelas 9</option>
+                        <option value="10">Kelas 10</option>
+                        <option value="11">Kelas 11</option>
+                        <option value="12">Kelas 12</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="keterampilan">KETERAMPILAN</label>
+                    <input type="text" id="keterampilan" name="keterampilan" placeholder="Contoh: Komputer, Menjahit, dll">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bakat">KHUSUS/BAKAT</label>
+                    <input type="text" id="bakat" name="bakat" placeholder="Contoh: Menyanyi, Menggambar, dll">
+                </div>
+                
+                <div class="form-group">
+                    <label for="hobi">HOBI</label>
+                    <input type="text" id="hobi" name="hobi" placeholder="Contoh: Membaca, Olahraga, dll">
+                </div>
+                
+                <!-- Data Orang Tua Section -->
+                <h2 class="section-title">
+                    <i class="fas fa-users"></i> DATA ORANG TUA
+                </h2>
+                
+                <h3 style="color: #1a2980; margin: 15px 0 10px; grid-column: 1 / -1;">AYAH</h3>
+                
+                <div class="form-group">
+                    <label for="nama_ayah" class="required">NAMA AYAH</label>
+                    <input type="text" id="nama_ayah" name="nama_ayah" placeholder="Masukkan nama lengkap ayah" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nik_ayah" class="required">NIK AYAH</label>
+                    <input type="text" id="nik_ayah" name="nik_ayah" placeholder="Masukkan NIK ayah" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tahun_lahir_ayah" class="required">TAHUN LAHIR AYAH</label>
+                    <input type="number" id="tahun_lahir_ayah" name="tahun_lahir_ayah" min="1900" max="2020" placeholder="Contoh: 1975" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pekerjaan_ayah" class="required">PEKERJAAN AYAH</label>
+                    <input type="text" id="pekerjaan_ayah" name="pekerjaan_ayah" placeholder="Contoh: Wiraswasta, PNS, dll" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gaji_ayah">GAJI AYAH (per bulan)</label>
+                    <input type="number" id="gaji_ayah" name="gaji_ayah" placeholder="Dalam Rupiah">
+                </div>
+                
+                <div class="form-group">
+                    <label for="no_hp_ayah" class="required">NOMOR HP AYAH</label>
+                    <input type="tel" id="no_hp_ayah" name="no_hp_ayah" placeholder="Contoh: 081234567890" required>
+                </div>
+                
+                <h3 style="color: #1a2980; margin: 15px 0 10px; grid-column: 1 / -1;">IBU</h3>
+                
+                <div class="form-group">
+                    <label for="nama_ibu" class="required">NAMA IBU</label>
+                    <input type="text" id="nama_ibu" name="nama_ibu" placeholder="Masukkan nama lengkap ibu" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nik_ibu" class="required">NIK IBU</label>
+                    <input type="text" id="nik_ibu" name="nik_ibu" placeholder="Masukkan NIK ibu" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tahun_lahir_ibu" class="required">TAHUN LAHIR IBU</label>
+                    <input type="number" id="tahun_lahir_ibu" name="tahun_lahir_ibu" min="1900" max="2020" placeholder="Contoh: 1980" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pekerjaan_ibu" class="required">PEKERJAAN IBU</label>
+                    <input type="text" id="pekerjaan_ibu" name="pekerjaan_ibu" placeholder="Contoh: Ibu Rumah Tangga, Guru, dll" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="no_hp_ibu" class="required">NOMOR HP IBU</label>
+                    <input type="tel" id="no_hp_ibu" name="no_hp_ibu" placeholder="Contoh: 081234567890" required>
+                </div>
+                
+                <!-- Kesehatan Section -->
+                <h2 class="section-title">
+                    <i class="fas fa-heartbeat"></i> KESEHATAN
+                </h2>
+                
+                <div class="form-group">
+                    <label for="penyakit">PENYAKIT YANG DIDERITA</label>
+                    <textarea id="penyakit" name="penyakit" rows="2" placeholder="Contoh: Asma, Jantung, Alergi, dll"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tinggi">TINGGI BADAN (cm)</label>
+                    <input type="number" id="tinggi" name="tinggi" min="50" max="250" placeholder="Contoh: 160">
+                </div>
+                
+                <div class="form-group">
+                    <label for="berat">BERAT BADAN (kg)</label>
+                    <input type="number" id="berat" name="berat" min="5" max="200" placeholder="Contoh: 50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gol_darah">GOLONGAN DARAH</label>
+                    <select id="gol_darah" name="gol_darah">
+                        <option value="">Pilih Golongan Darah</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="AB">AB</option>
+                        <option value="O">O</option>
+                        <option value="Tidak Tahu">Tidak Tahu</option>
+                    </select>
+                </div>
+                
+                <!-- Deteksi Lokasi Section -->
+                <h2 class="section-title">
+                    <i class="fas fa-map-marker-alt"></i> DETEKSI LOKASI
+                </h2>
+                
+                <div class="location-container">
+                    <button type="button" class="btn btn-detect" id="detectLocation">
+                        <i class="fas fa-location-dot"></i> Deteksi Lokasi Sekarang
+                    </button>
+                    
+                    <div class="location-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="locationStatus">Klik tombol di atas untuk mendeteksi lokasi Anda</span>
+                    </div>
+                    
+                    <div class="map-container">
+                        <div id="map"></div>
+                    </div>
+                    
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    <input type="hidden" id="alamat_deteksi" name="alamat_deteksi">
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-paper-plane"></i> KIRIM DATA KE GOOGLE SHEETS
+                </button>
+                
+                <!-- Message Container -->
+                <div class="message-container">
+                    <div class="success-message" id="successMessage">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Data Berhasil Dikirim!</h3>
+                        <p>Data siswa telah disimpan di Google Sheets. Terima kasih!</p>
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Terjadi Kesalahan!</h3>
+                        <p id="errorText">Silakan cek kembali data yang Anda masukkan.</p>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="form-footer">
+                    <p>Form Pendataan Siswa © 2023 | Data akan disimpan secara aman di Google Sheets</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([-6.2088, 106.8456], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Add a marker
+        const marker = L.marker([0, 0]).addTo(map);
+        marker.bindPopup("Lokasi Anda akan muncul di sini").openPopup();
+        
+        // Create particles background
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 20 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const animationDuration = Math.random() * 20 + 10;
+                const animationDelay = Math.random() * 5;
+                const opacity = Math.random() * 0.5 + 0.1;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animationDuration = `${animationDuration}s`;
+                particle.style.animationDelay = `${animationDelay}s`;
+                particle.style.opacity = opacity;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Geolocation function
+        function detectLocation() {
+            const locationStatus = document.getElementById('locationStatus');
+            locationStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi lokasi...';
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+                        
+                        // Update map view
+                        map.setView([lat, lng], 15);
+                        marker.setLatLng([lat, lng]);
+                        marker.bindPopup("Lokasi Anda").openPopup();
+                        
+                        // Reverse geocoding (simulated)
+                        setTimeout(() => {
+                            const address = `Jl. Pendidikan No.123, Jakarta Selatan (${lat.toFixed(6)}, ${lng.toFixed(6)})`;
+                            locationStatus.innerHTML = `<i class="fas fa-check-circle"></i> Lokasi berhasil dideteksi: ${address}`;
+                            document.getElementById('alamat_deteksi').value = address;
+                        }, 1500);
+                    },
+                    function(error) {
+                        let errorMessage;
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = "Anda menolak permintaan geolokasi.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = "Informasi lokasi tidak tersedia.";
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = "Permintaan lokasi habis waktu.";
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                errorMessage = "Terjadi kesalahan yang tidak diketahui.";
+                                break;
+                        }
+                        locationStatus.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`;
+                    }
+                );
+            } else {
+                locationStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Geolokasi tidak didukung oleh browser Anda.';
+            }
+        }
+        
+        // Form submission
+        async function submitForm(e) {
+            e.preventDefault();
+            
+            // Validate required fields
+            const requiredFields = document.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = '#ff4757';
+                    field.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        field.style.animation = '';
+                    }, 500);
+                }
+            });
+            
+            if (!isValid) {
+                document.getElementById('errorText').textContent = 'Silakan lengkapi semua bidang yang wajib diisi!';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                
+                // Scroll to first error
+                document.querySelector('[required]:invalid')?.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center'
+                });
+                
+                return;
+            }
+            
+            // Show loading
+            const submitBtn = document.querySelector('.btn-submit');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim data...';
+            submitBtn.disabled = true;
+            
+            // Collect form data
+            const form = document.getElementById('studentForm');
+            const formData = new FormData(form);
+            const formObject = Object.fromEntries(formData.entries());
+            
+            try {
+                // Send data to Google Apps Script
+                const response = await fetch(
+                    'https://script.google.com/macros/s/AKfycbxj69K3lOEhE71FzPDlE-xCcI9RYD5HzEfsPN8Hvtm-OV0F-i3dvQ3H4eeAk6rmp3JaYw/exec', 
+                    {
+                        method: 'POST',
+                        body: JSON.stringify(formObject),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                
+                const result = await response.json();
+                
+                if (result.result === 'success') {
+                    // Show success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    
+                    // Flash animation
+                    submitBtn.style.background = 'linear-gradient(to right, #00c853, #64dd17)';
+                    setTimeout(() => {
+                        submitBtn.style.background = 'linear-gradient(to right, #00b09b, #96c93d)';
+                    }, 1000);
+                    
+                    // Reset form after 3 seconds
+                    setTimeout(() => {
+                        form.reset();
+                        document.getElementById('successMessage').style.display = 'none';
+                        map.setView([-6.2088, 106.8456], 13);
+                        marker.setLatLng([0, 0]);
+                        document.getElementById('locationStatus').innerHTML = 'Klik tombol di atas untuk mendeteksi lokasi Anda';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 3000);
+                } else {
+                    throw new Error('Gagal menyimpan data: ' + (result.message || 'Tidak ada pesan kesalahan'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorText').textContent = error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            } finally {
+                // Reset button state
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            document.getElementById('detectLocation').addEventListener('click', detectLocation);
+            document.getElementById('studentForm').addEventListener('submit', submitForm);
+            
+            // Reset error when user starts typing
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                element.addEventListener('input', function() {
+                    if (this.style.borderColor === 'rgb(255, 71, 87)') {
+                        this.style.borderColor = '#ddd';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
